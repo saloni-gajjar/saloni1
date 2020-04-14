@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "587219889154",
+    "firebase_url": "https://to-the-rescue-40b17.firebaseio.com",
+    "project_id": "to-the-rescue-40b17",
+    "storage_bucket": "to-the-rescue-40b17.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:587219889154:android:638960a3a273908bb40b1b",
+        "android_client_info": {
+          "package_name": "com.example.saloni1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "587219889154-nof2fgd2clncsd9kqu9qi6m4n5i1ju1t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBzPfIceDW5Y9mQg7_fhA68DiYtSGjZUec"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "587219889154-nof2fgd2clncsd9kqu9qi6m4n5i1ju1t.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
