@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:saloni1/locator.dart';
+import 'package:saloni1/services/authentication_service.dart';
 
 import 'car_map_view.dart';
 import 'profilepage.dart';
@@ -7,6 +9,8 @@ import 'profilepage.dart';
 class CarHomeView extends StatelessWidget {
   CarHomeView({this.auth, this.logoutCallBack});
 
+  final AuthenticationService _authenticationService =
+  locator<AuthenticationService>();
   final FirebaseAuth auth;
   final VoidCallback logoutCallBack;
 
@@ -73,7 +77,9 @@ class CarHomeView extends StatelessWidget {
                           new NewPage("Your History")));
                 },
               ),
-              CustomListTile(Icons.lock, 'Log Out', () => {}),
+              CustomListTile(Icons.lock, 'Log Out', () {
+                _authenticationService.signOut();
+              }),
             ],
           ),
         ),

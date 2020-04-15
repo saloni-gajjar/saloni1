@@ -1,8 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:saloni1/constants/route_names.dart';
 import 'package:saloni1/locator.dart';
 import 'package:saloni1/models/User.dart';
 import 'package:saloni1/services/firestore_service.dart';
+
+import 'navigation_service.dart';
 
 class AuthenticationService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -10,6 +13,7 @@ class AuthenticationService {
   Stream<String> get onAuthStateChanged =>
       _firebaseAuth.onAuthStateChanged.map((FirebaseUser user) => user?.uid);
   final FirestoreService _firestoreService = locator<FirestoreService>();
+  final NavigationService _navigationService = locator<NavigationService>();
 
   User _currentUser;
 
@@ -59,10 +63,15 @@ class AuthenticationService {
     }
   }
 
-  Future<bool> isUserLoggedIn() async {
+  Future isUserLoggedIn() async {
     var user = await _firebaseAuth.currentUser();
-    await _populateCurrentUser(user);
-    return user != null;
+    await _populateCurrentUser(user).then((v) {});
+    if (_currentUser != null) {
+      if (_currentUser.userRole == "Car User")
+        _navigationService.navigateTo(CarHomeViewRoute);
+      else
+        _navigationService.navigateTo(AmbHomeViewRoute);
+    }
   }
 
   Future _populateCurrentUser(FirebaseUser user) async {
@@ -72,6 +81,7 @@ class AuthenticationService {
   }
 
   Future<void> signOut() async {
-    return _firebaseAuth.signOut();
+    _firebaseAuth.signOut();
+    return _navigationService.navigateTo(LoginViewRoute);
   }
 }
