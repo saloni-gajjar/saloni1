@@ -27,7 +27,7 @@ class AuthenticationService {
       await _populateCurrentUser(authResult.user);
       return authResult.user != null;
     } catch (e) {
-      print("Error");
+      print("Error : $e");
     }
   }
 

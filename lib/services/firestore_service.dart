@@ -14,7 +14,7 @@ class FirestoreService {
             .document(user.id)
             .setData(user.toJson());
       } catch (e) {
-        return e.message;
+        return e;
       }
     } else if (User.fromData(user.toJson()).userRole == 'Rescuer') {
       try {
@@ -22,25 +22,27 @@ class FirestoreService {
             .document(user.id)
             .setData(user.toJson());
       } catch (e) {
-        return e.message;
+        return e;
       }
     }
   }
 
   Future getUser(String uid) async {
-    if (_carusersCollectionReference.document(uid) != null) {
+    var car = await _carusersCollectionReference.document(uid).get();
+    var rescue = await _rescuersCollectionReference.document(uid).get();
+    if (car.exists) {
       try {
         var userData = await _carusersCollectionReference.document(uid).get();
         return User.fromData(userData.data);
       } catch (e) {
-        return e.message;
+        return e;
       }
-    } else if (_rescuersCollectionReference.document(uid) != null) {
+    } else if (rescue.exists) {
       try {
         var userData = await _rescuersCollectionReference.document(uid).get();
         return User.fromData(userData.data);
       } catch (e) {
-        return e.message;
+        return e;
       }
     }
   }
