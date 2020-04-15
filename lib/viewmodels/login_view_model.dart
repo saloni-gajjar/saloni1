@@ -29,10 +29,15 @@ class LoginViewModel extends BaseModel {
 
     if (result is bool) {
       if (result) {
-        if (Firestore.instance.collection('carusers').document(email) != null) {
+        var car = await Firestore.instance.collection('carusers')
+            .document()
+            .get();
+        var rescue = await Firestore.instance.collection('rescuers')
+            .document()
+            .get();
+        if (car.exists) {
           _navigationService.navigateTo(CarHomeViewRoute);
-        } else if (Firestore.instance.collection('rescuers').document(email) !=
-            null) {
+        } else if (rescue.exists) {
           _navigationService.navigateTo(AmbHomeViewRoute);
         } else {
           await _dialogService.showDialog(
