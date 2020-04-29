@@ -3,4 +3,5 @@ const String SignUpViewRoute = "SignUp";
 const String CarHomeViewRoute = "CarHomeView";
 const String AmbHomeViewRoute = "AmbHomeView";
 const String CarMapViewRoute = "CarMapView";
+const String RoutePageViewRoute = "RoutePageView";
 // Generate the views here

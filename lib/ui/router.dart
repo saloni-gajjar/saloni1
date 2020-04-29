@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:saloni1/constants/route_names.dart';
+import 'package:saloni1/ui/view/ambulance/amb_home_view_old.dart';
 import 'package:saloni1/ui/view/ambulance/amb_home_view.dart';
-import 'package:saloni1/ui/view/car/car_home_view.dart';
 import 'package:saloni1/ui/view/login_view.dart';
 import 'package:saloni1/ui/view/signup_view.dart';
 
@@ -17,11 +17,11 @@ Route<dynamic> generateRoute(RouteSettings settings) {
         routeName: settings.name,
         viewToShow: SignUpView(),
       );
-    case CarHomeViewRoute:
+  /*case CarHomeViewRoute:
       return _getPageRoute(
         routeName: settings.name,
         viewToShow: CarHomeView(),
-      );
+      );*/
     case AmbHomeViewRoute:
       return _getPageRoute(
         routeName: settings.name,

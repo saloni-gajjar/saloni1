@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:saloni1/constants/route_names.dart';
 import 'package:saloni1/locator.dart';
@@ -26,25 +25,26 @@ class LoginViewModel extends BaseModel {
     );
 
     setBusy(false);
+    setBusy(false);
 
     if (result is bool) {
       if (result) {
-        var car = await Firestore.instance.collection('carusers')
-            .document()
+        /*var car = await Firestore.instance.collection('carusers')
+            .document(email)
             .get();
         var rescue = await Firestore.instance.collection('rescuers')
-            .document()
+            .document(email)
             .get();
         if (car.exists) {
           _navigationService.navigateTo(CarHomeViewRoute);
-        } else if (rescue.exists) {
+        } else if (rescue.exists) {*/
           _navigationService.navigateTo(AmbHomeViewRoute);
-        } else {
+        /*} else {
           await _dialogService.showDialog(
             title: 'Login Failure',
             description: 'General login failure. Please try again later',
           );
-        }
+        }*/
       } else {
         await _dialogService.showDialog(
           title: 'Login Failure',

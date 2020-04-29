@@ -40,6 +40,12 @@ class AuthenticationService {
     @required String password,
     @required String fullName,
     @required String role,
+    @required String emp_id,
+    @required String phone_number,
+    @required String vehicle_number,
+    @required String license_number,
+
+
   }) async {
     try {
       var authResult = await _firebaseAuth.createUserWithEmailAndPassword(
@@ -49,10 +55,14 @@ class AuthenticationService {
 
       // create a new user profile on firestore
       _currentUser = User(
-        id: authResult.user.uid,
-        email: email,
+        //id: authResult.user.email,
+        email: authResult.user.email,
         fullName: fullName,
         userRole: role,
+        emp_id: emp_id,
+        phone_number: phone_number,
+        vehicle_number: vehicle_number,
+        license_number: license_number,
       );
 
       await _firestoreService.createUser(_currentUser);
@@ -76,12 +86,12 @@ class AuthenticationService {
 
   Future _populateCurrentUser(FirebaseUser user) async {
     if (user != null) {
-      _currentUser = await _firestoreService.getUser(user.uid);
+      _currentUser = await _firestoreService.getUser(user.email);
     }
   }
 
   Future<void> signOut() async {
     _firebaseAuth.signOut();
-    return _navigationService.navigateTo(LoginViewRoute);
+    return _navigationService.navigateTo("LoginView");
   }
 }

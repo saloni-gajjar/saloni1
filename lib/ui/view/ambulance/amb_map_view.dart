@@ -1,26 +1,28 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
 //import 'package:firebase_database/firebase_database.dart';
 //import 'dart:async';
 
-class CarMapView extends StatefulWidget {
-  CarMapView({Key key, this.auth}) : super(key: key);
+class AmbMapView extends StatefulWidget {
+  AmbMapView({Key key, this.auth}) : super(key: key);
 
   final FirebaseAuth auth;
 
   //final VoidCallback OnSignedOut;
 
   @override
-  State<StatefulWidget> createState() => new _CarMapViewState();
+  State<StatefulWidget> createState() => new _AmbMapViewState();
 }
 
-class _CarMapViewState extends State<CarMapView> {
+class _AmbMapViewState extends State<AmbMapView> {
   //final FirebaseDatabase _database = FirebaseDatabase.instance;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   StreamSubscription _locationSubscription;
@@ -28,6 +30,19 @@ class _CarMapViewState extends State<CarMapView> {
   Marker marker;
   Circle circle;
   GoogleMapController _controller;
+  Firestore firestore = Firestore.instance;
+  Geoflutterfire geo = Geoflutterfire();
+
+  Future<DocumentReference> _addGeoPoint() async {
+    var pos = await _locationTracker.getLocation();
+    GeoFirePoint point =
+    geo.point(latitude: pos.latitude, longitude: pos.longitude);
+    final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+    FirebaseUser user = await firebaseAuth.currentUser();
+    return firestore.collection('rescuers').document(user.email).collection(
+        'location').add({'position': point.data, 'name': 'Queries'});
+  }
+
 
   static final CameraPosition initialLocation = CameraPosition(
     target: LatLng(20.537319, 72.941048),
@@ -107,7 +122,8 @@ class _CarMapViewState extends State<CarMapView> {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text('First Page'),
+        title: new Text('My Current Location'),
+
       ),
       body: GoogleMap(
         mapType: MapType.normal,
@@ -122,7 +138,10 @@ class _CarMapViewState extends State<CarMapView> {
           child: Icon(Icons.location_searching),
           onPressed: () {
             getCurrentLocation();
+            // _addGeoPoint();
           }),
+
+
     );
   }
 }

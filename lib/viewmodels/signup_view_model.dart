@@ -8,8 +8,8 @@ import 'package:saloni1/services/navigation_service.dart';
 import 'base_model.dart';
 
 class SignUpViewModel extends BaseModel {
-  final AuthenticationService _authenticationService =
-      locator<AuthenticationService>();
+  final AuthenticationService _authenticationService = locator<
+      AuthenticationService>();
   final DialogService _dialogService = locator<DialogService>();
   final NavigationService _navigationService = locator<NavigationService>();
 
@@ -26,6 +26,10 @@ class SignUpViewModel extends BaseModel {
     @required String email,
     @required String password,
     @required String fullName,
+    @required String emp_id,
+    @required String phone_number,
+    @required String vehicle_number,
+    @required String license_number,
   }) async {
     setBusy(true);
 
@@ -33,17 +37,21 @@ class SignUpViewModel extends BaseModel {
         email: email,
         password: password,
         fullName: fullName,
+        emp_id: emp_id,
+        phone_number: phone_number,
+        vehicle_number: vehicle_number,
+        license_number: license_number,
         role: _selectedRole);
 
     setBusy(false);
 
     if (result is bool) {
       if (result) {
-        if (_selectedRole == 'Car User') {
+        /*if (_selectedRole == 'Car User') {
           _navigationService.navigateTo(CarHomeViewRoute);
-        } else if (_selectedRole == 'Rescuer') {
+        } else if (_selectedRole == 'Rescuer') {*/
           _navigationService.navigateTo(AmbHomeViewRoute);
-        }
+        //}
       } else {
         await _dialogService.showDialog(
           title: 'Sign Up Failure',
