@@ -34,8 +34,7 @@ class _AllRescuersViewState extends State<AllRescuersView> {
   Firestore firestore = Firestore.instance;
   Geoflutterfire geo = Geoflutterfire();
   FirebaseUser mCurrentUser;
-  String _uname;
-  FirebaseAuth _auth;
+
 
   /*GeoFirePoint center = geo.point(latitude: 12.960632, longitude: 77.641603);
 
@@ -50,45 +49,37 @@ class _AllRescuersViewState extends State<AllRescuersView> {
 
   @override
   void initState() {
-    _auth = FirebaseAuth.instance;
-    _getCurrentUser();
+    //_auth = FirebaseAuth.instance;
+    //_getCurrentUser();
     populateClients();
     super.initState();
   }
 
-  _getCurrentUser() async {
+  /*_getCurrentUser () async {
     mCurrentUser = await _auth.currentUser();
-    DocumentSnapshot item = await Firestore.instance
-        .collection("rescuers")
-        .document(mCurrentUser.email)
-        .get(); //If //I delete this line everything works fine but I don't have user name.
+    DocumentSnapshot item = await Firestore.instance.collection("rescuers").document(mCurrentUser.email).get(); //If //I delete this line everything works fine but I don't have user name.
     _uname = item['fullName'];
-    setState(() {});
-  }
+   }*/
 
   populateClients() async {
     //final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
     //FirebaseUser user = await firebaseAuth.currentUser();
 
-    List list_of_rescuers = await Firestore.instance
-        .collection('rescuers')
+    List list_of_rescuers = await Firestore.instance.collection('rescuers')
         .getDocuments()
         .then((val) => val.documents);
     for (int i = 0; i <= list_of_rescuers.length; i++) {
-      Firestore.instance
-          .collection('rescuers')
-          .document(list_of_rescuers[i].documentID.toString())
-          .collection('location')
-          .snapshots()
-          .listen(CreateListofLocations);
+      Firestore.instance.collection('rescuers').document(
+          list_of_rescuers[i].documentID.toString())
+          .collection('location').snapshots().listen(CreateListofLocations);
     }
-  }
 
+  }
   CreateListofLocations(QuerySnapshot snapshot) async {
     var docs = snapshot.documents;
     initMarker(docs[0].data, docs[0].documentID);
-  }
 
+  }
   initMarker(client, requestId) {
     var markerIdVal = requestId;
     final MarkerId markerId = MarkerId(markerIdVal);
@@ -97,7 +88,8 @@ class _AllRescuersViewState extends State<AllRescuersView> {
         icon: BitmapDescriptor.defaultMarkerWithHue(125.0),
         position: LatLng(client['position']['geopoint'].latitude,
             client['position']['geopoint'].longitude),
-        infoWindow: InfoWindow(title: client["name"]));
+        infoWindow: InfoWindow(title: client["name"])
+    );
     setState(() {
       marks[markerId] = marker;
       print(markerId);
@@ -108,43 +100,47 @@ class _AllRescuersViewState extends State<AllRescuersView> {
   Future _makecollection() async {
     final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
     FirebaseUser user = await firebaseAuth.currentUser();
-    var collectionReference = firestore
-        .collection('rescuers')
-        .document(user.email)
-        .collection('location');
+    var collectionReference = firestore.collection('rescuers').document(
+        user.email).collection('location');
     double radius = 50;
     String field = 'position';
     var pos = await firestore.collection('markers').getDocuments().then((val) {
       return val.documents[0].data["location"];
     });
-    GeoFirePoint center =
-        geo.point(latitude: pos.latitude, longitude: pos.longitude);
-    Stream<List<DocumentSnapshot>> stream = geo
-        .collection(collectionRef: collectionReference)
+    GeoFirePoint center = geo.point(
+        latitude: pos.latitude, longitude: pos.longitude);
+    Stream<List<DocumentSnapshot>> stream = geo.collection(
+        collectionRef: collectionReference)
         .within(center: center, radius: radius, field: field);
     stream.listen((List<DocumentSnapshot> documentList) {
       //do something
     });
   }
 
+
   Future _addGeopoint(LocationData pos) async {
     //var pos = await _locationTracker.getLocation();
     GeoFirePoint point =
-        geo.point(latitude: pos.latitude, longitude: pos.longitude);
+    geo.point(latitude: pos.latitude, longitude: pos.longitude);
 
     final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
     FirebaseUser user = await firebaseAuth.currentUser();
-    return await firestore
-        .collection('rescuers')
+    DocumentSnapshot item = await Firestore.instance.collection("rescuers")
         .document(user.email)
-        .collection('location')
-        .add({'position': point.data, 'name': _uname});
+        .get(); //If //I delete this line everything works fine but I don't have user name.
+    String _uname = item['fullName'];
+    print(_uname);
+    return firestore.collection('rescuers').document(user.email).collection(
+        'location').add({'position': point.data, 'name': _uname});
   }
+
+
 
   static final CameraPosition initialLocation = CameraPosition(
     target: LatLng(20.537319, 72.941048),
     zoom: 7,
   );
+
 
   void updatelocation() async {
     try {
@@ -159,16 +155,16 @@ class _AllRescuersViewState extends State<AllRescuersView> {
 
       _locationSubscription =
           _locationTracker.onLocationChanged().listen((pos) {
-        if (_controller != null) {
-          _controller.animateCamera(CameraUpdate.newCameraPosition(
-              new CameraPosition(
-                  bearing: 192.8334901395799,
-                  target: LatLng(pos.latitude, pos.longitude),
-                  tilt: 0,
-                  zoom: 11.00)));
-          _addGeopoint(pos);
-        }
-      });
+            if (_controller != null) {
+              _controller.animateCamera(CameraUpdate.newCameraPosition(
+                  new CameraPosition(
+                      bearing: 192.8334901395799,
+                      target: LatLng(pos.latitude, pos.longitude),
+                      tilt: 0,
+                      zoom: 11.00)));
+              _addGeopoint(pos);
+            }
+          });
     } on PlatformException catch (e) {
       if (e.code == 'PERMISSION_DENIED') {
         debugPrint("Permission Denied");
@@ -198,13 +194,11 @@ class _AllRescuersViewState extends State<AllRescuersView> {
     return new Scaffold(
       appBar: new AppBar(
         title: new Text('Rescuers'),
-        actions: <Widget>[
-          FlatButton(
-              onPressed: () {
-                _makecollection();
-              },
-              child: Icon(Icons.collections_bookmark))
+        actions: <Widget>[FlatButton(onPressed: () {
+          _makecollection();
+        }, child: Icon(Icons.collections_bookmark))
         ],
+
       ),
       body: GoogleMap(
         mapType: MapType.normal,
@@ -221,6 +215,9 @@ class _AllRescuersViewState extends State<AllRescuersView> {
             updatelocation();
             //getCurrentLocation();
           }),
+
     );
   }
+
+
 }

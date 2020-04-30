@@ -12,12 +12,13 @@ import 'profilepage.dart';
 
 
 class AmbHomeView extends StatefulWidget {
-  AmbHomeView({this.auth, this.logoutCallBack});
+  AmbHomeView({this.auth});
 
   //final AuthenticationService _authenticationService =
   //locator<AuthenticationService>();
   final FirebaseAuth auth;
-  final VoidCallback logoutCallBack;
+
+  //final VoidCallback logoutCallBack;
 
 
   @override
@@ -37,6 +38,7 @@ class _AmbHomeViewState extends State<AmbHomeView> {
     _auth = FirebaseAuth.instance;
     _getCurrentUser();
   }
+
 
   _getCurrentUser() async {
     mCurrentUser = await _auth.currentUser();
@@ -113,10 +115,7 @@ class _AmbHomeViewState extends State<AmbHomeView> {
                       new NewPage("Your History")));
                 },
               ),
-              CustomListTile(Icons.lock, 'Logout', () {
-                //_authenticationService.signOut();
-
-              }),
+              CustomListTile(Icons.lock, 'Logout', () {}),
             ],
           ),
         ),

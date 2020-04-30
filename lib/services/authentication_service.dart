@@ -77,9 +77,6 @@ class AuthenticationService {
     var user = await _firebaseAuth.currentUser();
     await _populateCurrentUser(user).then((v) {});
     if (_currentUser != null) {
-      if (_currentUser.userRole == "Car User")
-        _navigationService.navigateTo(CarHomeViewRoute);
-      else
         _navigationService.navigateTo(AmbHomeViewRoute);
     }
   }
