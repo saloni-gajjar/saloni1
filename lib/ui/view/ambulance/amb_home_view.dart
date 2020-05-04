@@ -1,4 +1,6 @@
 //import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:math' show atan2, cos, pi, sin, sqrt;
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -37,7 +39,97 @@ class _AmbHomeViewState extends State<AmbHomeView> {
     super.initState();
     _auth = FirebaseAuth.instance;
     _getCurrentUser();
+    _accident();
   }
+
+  _accident() {
+    Firestore.instance.collection("markers").snapshots().listen((result) {
+      result.documentChanges.forEach((res) {
+        if ((res.type == DocumentChangeType.added) ||
+            (res.type == DocumentChangeType.modified)) {
+          _makecollection();
+        }
+      });
+    });
+  }
+
+  Future _makecollection() async {
+    var collectionReference2 = Firestore.instance.collection('radius_resc');
+    if (collectionReference2 != null) {
+      collectionReference2.getDocuments().then((docs) {
+        for (var document in docs.documents) {
+          document.reference.delete();
+          print("radius_resc deleted");
+        }
+      });
+    }
+    latest_locs();
+    double radius = 20; //kilometers
+    var center = await Firestore.instance.collection('markers')
+        .getDocuments()
+        .then((val) {
+      print(val.documents[val.documents.length - 1].data["clientName"]);
+      return val.documents[val.documents.length - 1].data["location"];
+    });
+    await Firestore.instance.collection('latest_resc')
+        .getDocuments()
+        .then((val) {
+      for (var i = 0; i < val.documents.length; i++) {
+        var loc = val.documents[i].data["position"]["geopoint"];
+        var ans = compare(
+            center.latitude, center.longitude, loc.latitude, loc.longitude,
+            radius);
+        if (ans == 0) {
+          Firestore.instance.collection('radius_resc').add(
+              val.documents[i].data);
+        }
+      }
+    });
+  }
+
+
+  // ignore: non_constant_identifier_names
+  latest_locs() async {
+    var collectionReference1 = Firestore.instance.collection('latest_resc');
+    if (collectionReference1 != null) {
+      collectionReference1.getDocuments().then((docs) {
+        for (var document in docs.documents) {
+          document.reference.delete();
+          print("latest_resc deleted");
+        }
+      });
+    }
+    List listOfRescuers = await Firestore.instance.collection('rescuers')
+        .getDocuments()
+        .then((val) => val.documents);
+    for (int i = 0; i < listOfRescuers.length; i++) {
+      Firestore.instance.collection('rescuers').document(
+          listOfRescuers[i].documentID.toString())
+          .collection('location').snapshots().listen((
+          QuerySnapshot snapshot) async {
+        var docs = snapshot.documents;
+        Firestore.instance.collection('latest_resc').add(docs[0].data);
+        print(docs[0].data["name"]);
+      }
+      );
+    }
+  }
+
+  double compare(lat1, lon1, lat2, lon2, radius) {
+    const R = 6371e3;
+    var l1 = lat1 * pi / 180;
+    var l2 = lat2 * pi / 180;
+    var delta_lat = (lat2 - lat1) * pi / 180;
+    var delta_lon = (lon2 - lon1) * pi / 180;
+    var a = sin(delta_lat / 2) * sin(delta_lat / 2)
+        + cos(l1) * cos(l2) * sin(delta_lon / 2) * sin(delta_lon / 2);
+    var c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    var d = R * c; //meters
+    var dis = d / 1000; //kilometers
+    print(dis); //kilometers
+    return ((dis <= radius) ? 0 : 1);
+  }
+
 
 
   _getCurrentUser() async {

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math' show cos, sqrt, asin;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -125,71 +124,6 @@ class _AllRescuersViewState extends State<AllRescuersView> {
       }
     });
  }*/
-  Future _makecollection() async {
-    var collectionReference2 = firestore.collection('radius_resc');
-    var collectionReference1 = firestore.collection('latest_resc');
-    if (collectionReference2 != null) {
-      collectionReference2.getDocuments().then((docs) {
-        for (var document in docs.documents) {
-          document.reference.delete();
-        }
-      });
-    }
-    if (collectionReference1 != null) {
-      collectionReference1.getDocuments().then((docs) {
-        for (var document in docs.documents) {
-          document.reference.delete();
-        }
-      });
-    }
-    latest_locs();
-    double radius = 50;
-    String field = 'position';
-    var center = await firestore.collection('markers').getDocuments().then((
-        val) {
-      return val.documents[0].data["location"];
-    });
-    await Firestore.instance.collection('latest_resc')
-        .getDocuments()
-        .then((val) {
-      for (var i = 0; i < val.documents.length; i++) {
-        var loc = val.documents[i].data["position"]["geopoint"];
-        var ans = compare(
-            center.latitude, center.longitude, loc.latitude, loc.longitude,
-            radius);
-        if (ans == 0) {
-          firestore.collection('radius_resc').add(val.documents[i].data);
-        }
-      }
-    });
-  }
-
-
-  latest_locs() async {
-    List list_of_rescuers = await Firestore.instance.collection('rescuers')
-        .getDocuments()
-        .then((val) => val.documents);
-    for (int i = 0; i < list_of_rescuers.length; i++) {
-      Firestore.instance.collection('rescuers').document(
-          list_of_rescuers[i].documentID.toString())
-          .collection('location').snapshots().listen((
-          QuerySnapshot snapshot) async {
-        var docs = snapshot.documents;
-        Firestore.instance.collection('latest_resc').add(docs[0].data);
-      }
-      );
-    }
-  }
-
-  double compare(lat1, lon1, lat2, lon2, radius) {
-    var p = 0.017453292519943295;
-    var c = cos;
-    var a = 0.5 - c((lat2 - lat1) * p) / 2 +
-        c(lat1 * p) * c(lat2 * p) *
-            (1 - c((lon2 - lon1) * p)) / 2;
-    var dis = 12742 * asin(sqrt(a));
-    return ((dis <= radius) ? 0 : 1);
-  }
 
 
   Future _addGeopoint(LocationData pos) async {
@@ -268,11 +202,6 @@ class _AllRescuersViewState extends State<AllRescuersView> {
     return new Scaffold(
       appBar: new AppBar(
         title: new Text('Rescuers'),
-        actions: <Widget>[FlatButton(onPressed: () {
-          _makecollection();
-        }, child: Icon(Icons.collections_bookmark))
-        ],
-
       ),
       body: GoogleMap(
         mapType: MapType.normal,
