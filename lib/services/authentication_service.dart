@@ -1,9 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
-import 'package:saloni1/constants/route_names.dart';
 import 'package:saloni1/locator.dart';
 import 'package:saloni1/models/User.dart';
 import 'package:saloni1/services/firestore_service.dart';
+import 'package:saloni1/ui/view/ambulance/amb_home_view.dart';
 
 import 'navigation_service.dart';
 
@@ -77,7 +77,8 @@ class AuthenticationService {
     var user = await _firebaseAuth.currentUser();
     await _populateCurrentUser(user).then((v) {});
     if (_currentUser != null) {
-        _navigationService.navigateTo(AmbHomeViewRoute);
+      if (_currentUser.userRole == "Rescuer")
+        return new AmbHomeView();
     }
   }
 

@@ -55,7 +55,7 @@ class _AmbHomeViewState extends State<AmbHomeView> {
   Widget build(BuildContext context) {
     return new Scaffold(
         appBar: new AppBar(
-            title: new Text("Welcome " + _uname ?? ''), actions: <Widget>[
+            title: new Text("Welcome Rescuer"), actions: <Widget>[
           //FlatButton(onPressed: () async {authenticationService.signOut();}, child: Text("Logout"))
         ]),
         drawer: Drawer(
@@ -84,8 +84,7 @@ class _AmbHomeViewState extends State<AmbHomeView> {
                         ),
                         Padding(
                           padding: EdgeInsets.all(8.0),
-                          child: Text(
-                            'Rescuer',
+                          child: Text(_uname,
                             style:
                             TextStyle(color: Colors.white,
                                 fontSize: 15.0,

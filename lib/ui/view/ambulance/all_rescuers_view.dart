@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' show cos, sqrt, asin;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -68,7 +69,7 @@ class _AllRescuersViewState extends State<AllRescuersView> {
     List list_of_rescuers = await Firestore.instance.collection('rescuers')
         .getDocuments()
         .then((val) => val.documents);
-    for (int i = 0; i <= list_of_rescuers.length; i++) {
+    for (int i = 0; i < list_of_rescuers.length; i++) {
       Firestore.instance.collection('rescuers').document(
           list_of_rescuers[i].documentID.toString())
           .collection('location').snapshots().listen(CreateListofLocations);
@@ -92,29 +93,102 @@ class _AllRescuersViewState extends State<AllRescuersView> {
     );
     setState(() {
       marks[markerId] = marker;
-      print(markerId);
+      // print(markerId);
     });
   }
 
 //makeCollection to be edited, please ignore this function
-  Future _makecollection() async {
-    final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-    FirebaseUser user = await firebaseAuth.currentUser();
-    var collectionReference = firestore.collection('rescuers').document(
-        user.email).collection('location');
-    double radius = 50;
+  /*Future _makecollection() async {
+
+    var collectionReference2 = firestore.collection('radius_resc');
+    var collectionReference1 = firestore.collection('latest_resc');
+    if (collectionReference2!=null) {collectionReference2.getDocuments().then((docs) {
+      for (var document in docs.documents) {document.reference.delete();}
+    });}
+    if (collectionReference1!=null) {collectionReference1.getDocuments().then((docs) {
+      for (var document in docs.documents) {document.reference.delete();}
+    });}
+    latest_locs();
+    double radius = 5;
     String field = 'position';
     var pos = await firestore.collection('markers').getDocuments().then((val) {
       return val.documents[0].data["location"];
     });
     GeoFirePoint center = geo.point(
         latitude: pos.latitude, longitude: pos.longitude);
-    Stream<List<DocumentSnapshot>> stream = geo.collection(
-        collectionRef: collectionReference)
+    Stream<List> stream = geo.collection(
+        collectionRef: collectionReference1)
         .within(center: center, radius: radius, field: field);
-    stream.listen((List<DocumentSnapshot> documentList) {
-      //do something
+    stream.listen((List documentList) {
+      for (var value in documentList) {
+        firestore.collection('radius_resc').add(value.data);
+      }
     });
+ }*/
+  Future _makecollection() async {
+    var collectionReference2 = firestore.collection('radius_resc');
+    var collectionReference1 = firestore.collection('latest_resc');
+    if (collectionReference2 != null) {
+      collectionReference2.getDocuments().then((docs) {
+        for (var document in docs.documents) {
+          document.reference.delete();
+        }
+      });
+    }
+    if (collectionReference1 != null) {
+      collectionReference1.getDocuments().then((docs) {
+        for (var document in docs.documents) {
+          document.reference.delete();
+        }
+      });
+    }
+    latest_locs();
+    double radius = 50;
+    String field = 'position';
+    var center = await firestore.collection('markers').getDocuments().then((
+        val) {
+      return val.documents[0].data["location"];
+    });
+    await Firestore.instance.collection('latest_resc')
+        .getDocuments()
+        .then((val) {
+      for (var i = 0; i < val.documents.length; i++) {
+        var loc = val.documents[i].data["position"]["geopoint"];
+        var ans = compare(
+            center.latitude, center.longitude, loc.latitude, loc.longitude,
+            radius);
+        if (ans == 0) {
+          firestore.collection('radius_resc').add(val.documents[i].data);
+        }
+      }
+    });
+  }
+
+
+  latest_locs() async {
+    List list_of_rescuers = await Firestore.instance.collection('rescuers')
+        .getDocuments()
+        .then((val) => val.documents);
+    for (int i = 0; i < list_of_rescuers.length; i++) {
+      Firestore.instance.collection('rescuers').document(
+          list_of_rescuers[i].documentID.toString())
+          .collection('location').snapshots().listen((
+          QuerySnapshot snapshot) async {
+        var docs = snapshot.documents;
+        Firestore.instance.collection('latest_resc').add(docs[0].data);
+      }
+      );
+    }
+  }
+
+  double compare(lat1, lon1, lat2, lon2, radius) {
+    var p = 0.017453292519943295;
+    var c = cos;
+    var a = 0.5 - c((lat2 - lat1) * p) / 2 +
+        c(lat1 * p) * c(lat2 * p) *
+            (1 - c((lon2 - lon1) * p)) / 2;
+    var dis = 12742 * asin(sqrt(a));
+    return ((dis <= radius) ? 0 : 1);
   }
 
 
@@ -129,7 +203,7 @@ class _AllRescuersViewState extends State<AllRescuersView> {
         .document(user.email)
         .get(); //If //I delete this line everything works fine but I don't have user name.
     String _uname = item['fullName'];
-    print(_uname);
+    // print(_uname);
     return firestore.collection('rescuers').document(user.email).collection(
         'location').add({'position': point.data, 'name': _uname});
   }
